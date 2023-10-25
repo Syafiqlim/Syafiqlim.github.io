@@ -1,28 +1,95 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <style>
-        .larger-text-3em {
-            font-size: 3em; /* Adjust the size as needed */
+        /* Reset some default styles for the body and links */
+        body, h1, ul {
+            margin: 0;
+            padding: 0;
         }
-        .larger-text-2em {
-            font-size: 2em; /* Adjust the size as needed */
+    
+        /* Apply background color and center the container */
+        body {
+            background-color: #f0f0f0; /* Light gray background color */
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+    
+        /* Style the container */
+        .container {
+            background-color: #fff; /* White container background */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Box shadow for a card-like effect */
+            display: inline-block;
+            text-align: left;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    
+        /* Style the heading */
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333; /* Dark text color */
+        }
+    
+        /* Style the list of MQTT topics */
+        ul {
+            list-style: none;
+        }
+    
+        ul li {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #000; /* Black text color for topics */
         }
     </style>
+    
 </head>
-<p class="larger-text-3em">Testing on 22th Oct 2023, 04:00</h1>
-<p class="larger-text-2em">PASSED</h2>
-<p class="larger-text-2em">Your IP Address : </p><p class="larger-text-2em" id="ip-address"></p>
+<body>
+    <div class="container">
+        <h1>MQTT Topics</h1>
+        <ul id="topics-list"></ul>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.1.3/mqtt.js"></script>
+    <script>
+        // MQTT Broker configuration
+        
+        const brokerUrl = 'ws://broker.mqtt-dashboard.com:8000/mqtt'; // Use the secure WebSocket URL
+        const client = mqtt.connect(brokerUrl);
 
-    <script type="text/javascript">
-        // Function to get and display the IP address
-        function getIPAddress(json) {
-            document.getElementById("ip-address").textContent = json.ip;
-        }
+        // Define the fixed topics to subscribe to
+        const topicsToSubscribe = ['PMM_Library_Temp', 'PMM_Library_Humidity'];
 
-        // Fetch the IP address from a free IP geolocation service
-        fetch("https://ipapi.co/json/")
-            .then(response => response.json())
-            .then(data => getIPAddress(data))
-            .catch(error => console.error("Error:", error));
-</script>
+        // Subscribe to topics and display real-time values
+        client.on('connect', function () {
+            console.log('Connected to MQTT broker');
+            // Subscribe to the fixed topics
+            topicsToSubscribe.forEach(topic => client.subscribe(topic));
+        });
+
+        client.on('message', function (topic, message) {
+            const topicsList = document.getElementById('topics-list');
+            const listItem = document.createElement('li');
+            
+            // Check the topic and assign the appropriate icon
+            let iconClass = '';
+            if (topic === 'PMM_Library_Temp') {
+                iconClass = 'fas fa-thermometer-half'; // Temperature icon
+            } else if (topic === 'PMM_Library_Humidity') {
+                iconClass = 'fas fa-tint'; // Humidity icon
+            }
+            
+            // Create the list item with the icon
+            listItem.innerHTML = `<i class="${iconClass}"></i> ${topic}: ${message.toString()}`;
+            
+            topicsList.appendChild(listItem);
+        });
+    </script>
+</body>
 </html>
