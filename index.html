@@ -64,7 +64,7 @@
         const client = mqtt.connect(brokerUrl);
 
         // Define the fixed topics to subscribe to
-        const topicsToSubscribe = ['PMM_Library_Temp', 'PMM_Library_Humidity'];
+        const topicsToSubscribe = ['lim_temp', 'lim_hum'];
 
         // Subscribe to topics and display real-time values
         client.on('connect', function () {
